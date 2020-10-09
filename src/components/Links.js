@@ -9,10 +9,18 @@ const Links = () => {
     const [currentId, setCurrentId] = useState('')
 
     const addOrEditLink = async (linkObject) => {
+        if (currentId === '') {            
         await db.collection('links').doc().set(linkObject)
         toast('New Link Added', {
             type: 'success'
-        })        
+        });    
+        } else {
+         await   db.collection('links').doc(currentId).update(linkObject)
+         toast("Link Updated", {
+             type: "info",
+         })
+         setCurrentId('');
+        }
     }
 
     const onDeleteLink = async id => {
@@ -45,7 +53,7 @@ const Links = () => {
 
     return <div>
         <div className="col-md-4 p-2">
-            <LinkForm  addOrEditLink={addOrEditLink} />
+            <LinkForm {...{addOrEditLink, currentId, links}} />
         </div>
         <div className="col-md-8 p-2">
             {links.map(link => (

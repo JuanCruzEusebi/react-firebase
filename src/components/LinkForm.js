@@ -1,4 +1,5 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
+import  {db}  from '../firebase'
 
 
 const LinkForm = (props) => {
@@ -17,10 +18,27 @@ const LinkForm = (props) => {
     }
  
     const handleSubmit = e => {
-        e.preventDefault();        
+        e.preventDefault();      
+        
+        
         props.addOrEditLink(values);
         setValues({...initalStateValues}); 
     }
+
+
+    const getLinkById = async (id) => {
+       const doc = await db.collection('links').doc(id).get();
+       setValues({...doc.data()})
+    }
+
+    useEffect(() => {
+        if (props.currentId === '') {
+            setValues({ ...initalStateValues });
+        } else {
+            getLinkById(props.currentId)
+        }
+    }, [props.currentId]);
+
 
         return (
         <form className="card card-body" onSubmit={handleSubmit}> 
@@ -41,7 +59,7 @@ const LinkForm = (props) => {
                 <textarea value={values.description} onChange={handleInputChange} name="description" id="" cols="30" rows="3" className="form-control" placeholder="Write a description" ></textarea>
             </div>
             <button className="btn btn-primary btn-block">
-                Save
+                {props.currentId === '' ? 'Save' : 'Update'}
             </button>
          </form>
     )
